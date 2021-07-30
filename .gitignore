@@ -1,0 +1,130 @@
+# Compiled TypeScript files.
+/_build/
+
+# Non-source parts of grist-core repo.
+/core/node-modules
+
+# Dev copy of home DB (set in ormconfig.js)
+/landing.db
+
+lib-cov
+*.seed
+*.log
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+*.pyc
+*.bak
+.DS_Store
+.cache-loader
+.eslintcache
+
+tags
+
+/pids
+/logs
+/results
+/sandbox_venv3
+/samples
+
+/config.json
+/grist.db
+/grist-sessions.db
+/npm-debug.log
+/static/bundle*.js
+/static/*.bundle.js
+/static/*.bundle.js.map
+/static/bundle.css
+/static/bundle-test.js
+/static/help
+/static/gen-bundle.js
+/static/gen-bundle.css
+/static/polymer-elements.html
+/static/polymer-elements.js
+/static/browser-check.js
+/app/common/version.ts
+
+# Ignore build helper files.
+/.build*
+/.ninja*
+
+/node_modules/
+/.node_cache/
+
+# # Ignore build results in sqlite3 module.
+# /node_modules/sqlite3/build/
+# /node_modules/sqlite3/lib/binding/
+# # Don't ignore .gz files in sqlite3 directory: they are needed.
+# !/node_modules/sqlite3/**/*.gz
+#
+# # Ignore all of electron-prebuilt installation. This module merely downloads a huge bundle, and it
+# # doesn't seem worth committing either the downloader code or the huge bundle that it fetches.
+# /node_modules/electron/
+# /node_modules/electron-prebuilt/
+# /node_modules/electron-squirrel-startup/
+# /node_modules/.bin/electron
+# /node_modules/appdmg/
+# /node_modules/.bin/appdmg
+#
+# # Ignore some other modules that only get installed for building the electron version.
+# /node_modules/babel-cli/
+# /node_modules/babel-preset-es2015/
+# /node_modules/babel-preset-babili/
+# /node_modules/uglify-js/
+# /node_modules/.bin/babel
+# /node_modules/.bin/babel-doctor
+# /node_modules/.bin/babel-external-helpers
+# /node_modules/.bin/babel-node
+# /node_modules/.bin/uglifyjs
+
+# Ignore the built app itself
+/dist/
+
+# Ignore the installed plugins folder
+/.grist/
+
+/tmp/
+/sandbox/nacl
+/sandbox/python
+/sandbox/staging
+/test/arc-unit-engine/.phutil_module_cache
+/test/webdriver-binaries
+
+/samples/.sharedDocs
+/test/samples/
+
+/sharing/client-cert.pem
+/sharing/client-key.pem
+/test/fixtures/CA
+
+# JetBrains (e.g., WebStorm)
+.idea/
+
+# Emacs
+\#*#
+tsfmt.json
+
+# Git
+.gitconfig
+
+# Ignore built portions of plugin code.
+/public-api/grist-plugin-api/dist/
+/plugins/*/dist/
+
+# Ignore cached performance results.
+.perf
+
+# Ignore directory for docker builds.
+/container/
+
+# Ignore the default output root for test/testrun.sh
+/_testoutputs*
+
+# A directory for import files when testing sandboxes inside containers.
+.import-tmp
+
+# Temporary requirement copies while building docker images
+/sandbox/gvisor/requirements3.txt
+/core/sandbox/docker/requirements3.txt
