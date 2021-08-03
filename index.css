@@ -15,8 +15,8 @@
   font-size: 16px;
 }
 
-.ql-save:after {
-  content: '🖫';
+.ql-remove:after {
+  content: '🗑';
   position: relative;
   top: -2px;
   font-size: 16px;

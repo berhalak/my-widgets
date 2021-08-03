@@ -10,56 +10,55 @@
   <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
   <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="index.css" rel="stylesheet">
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.js"></script>
+  <script src="https://unpkg.com/rxjs@%5E7/dist/bundles/rxjs.umd.min.js"></script>
 </head>
 
 <body>
-
   <div id="toolbar">
-
     <button x-data @click="$store.menu.toggle()" class="ql-hamburger"></button>
-    <input type="text" style="top: 3px" class="float-left 
-               text-sm
+    <input x-data @input="nameChanged.next($event.target.value)" x-model="$store.pages.current.Name" type="text" style="top: 2px" class="float-left 
                relative
                text-gray-600
                outline-none" placeholder="Untitled document" />
-    <button class="ql-save"></button>
-
+    <button class="ql-remove"></button>
     <!-- Add font size dropdown -->
-    <select class="ql-size">
-    </select>
+    <select class="ql-size"></select>
     <!-- Add a bold button -->
     <button class="ql-bold"></button>
     <!-- Add subscript and superscript buttons -->
     <button class="ql-script" value="sub"></button>
     <button class="ql-script" value="super"></button>
-    <select class="ql-color">
-    </select>
-    <select class="ql-background">
-    </select>
+    <select class="ql-color"></select>
+    <select class="ql-background"></select>
     <select class="ql-indent"></select>
-    <button class="ql-indent" value="-1">
-      <button class="ql-indent" value="+1">
+    <button class="ql-indent" value="-1"></button>
+    <button class="ql-indent" value="+1"></button>
   </div>
   <div class="flex flex-1 overflow-hidden">
     <div x-data x-show="$store.menu.on" class="grid grid-cols-2 w-80 text-gray-700 bg-gray-50">
       <div class="border-r flex flex-col">
         <template x-for="folder in $store.folders.list">
-          <div class="py-2 hover:bg-gray-200 cursor-pointer" @click="$store.menu.showFolder(folder.id)"
-           :class="$store.menu.folder == folder.id ? 'bg-gray-300' :''">
+          <div class="py-2 hover:bg-gray-200 cursor-pointer" @click="folderClick.next(folder.id)" :class="$store.folders.id === folder.id ? 'bg-gray-300' :''">
             <div class="pl-4 border-l-4 border-green-500" x-text="folder.Name"></div>
           </div>
         </template>
-        <div class="px-4 py-4 mt-auto">
-          Add folder
+        <div class="text-green-600 hover:text-green-700 px-4 py-4 mt-auto border-t cursor-pointer flex gap-1" @click="addFolder.next()">
+          <svg class="h-6" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Add a folder
         </div>
       </div>
       <div class="border-r flex flex-col">
-        <template x-for="page in $store.menu.pages">
-          <div class="px-4 py-2 hover:bg-gray-200 cursor-pointer" x-text="page.Name"></div>
+        <template x-for="page in $store.pages.active">
+          <div class="px-4 py-2 hover:bg-gray-200 cursor-pointer" @click="pageClick.next(page.id)" x-text="page.Name" :class="$store.pages.id === page.id ? 'bg-gray-300' :''"></div>
         </template>
-        <div class="px-4 py-4 mt-auto">
-          Add page
+        <div class="text-green-600 hover:text-green-700 px-4 py-4 mt-auto border-t cursor-pointer flex gap-1" @click="addPage.next()">
+          <svg class="h-6" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Add a page
         </div>
       </div>
     </div>

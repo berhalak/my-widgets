@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "serve"
+    "start": "reload -p 5000",
+    "web": "ngrok http 5000"
   },
   "repository": {
     "type": "git",
