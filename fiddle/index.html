@@ -1,0 +1,39 @@
+<html lang="en">
+
+<head style="height: 100%; margin: 0px; padding: 0px">
+  <meta charset="utf-8">
+  <title>Grist Fiddle</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.min.css">
+  <script>
+    var require = {paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs'}};
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.nls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.js"></script>
+  <script src="api_deps.js"></script>
+</head>
+
+<body style="height: 100%; display: flex; flex-direction: column; margin: 0px;">
+  <div id="_bar" style="display: none; flex: 0; justify-content: space-between; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+    <div>
+      <span class="_tab" id="tab_js" onclick="changeModel('js');" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer; background: lightgreen;">JavaScript</span>
+      <span class="_tab" id="tab_html" onclick="changeModel('html');" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer;">HTML</span>
+    </div>
+    <div>
+      <span class="_button" id="btnReset" onclick="reset();" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer;">Reset</span>
+      <span class="_button" id="btnInstall" onclick="install();" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer;">Install</span>
+      <span class="_button" id="btnPreview" onclick="showPreview();" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer;">Preview</span>
+      <span class="_button" id="btnEditor" onclick="showEditor();" style="padding: 2px 8px; border: 1px solid gray; cursor: pointer; display: none;">Editor</span>
+    </div>
+  </div>
+  <div id="page_editor" style="display: none; flex-grow:1; box-sizing: border-box; border-top:1px solid #a0a0a0;  border-bottom:1px solid #a0a0a0; overflow-y: auto;">
+    <div id="container" style="border-top:0px; height: 100%; box-sizing: border-box;"></div>
+  </div>
+  <iframe id="page_widget" style="flex: 1; border: 0px; display: none;">
+
+  </iframe>
+  <script src="api.js"></script>
+</body>
+
+</html>

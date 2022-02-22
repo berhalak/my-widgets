@@ -1,136 +1,94 @@
-const { Subject, interval, fromEvent, combineLatest } = rxjs;
-const { debounceTime, skip, take, concatWith, mergeWith } = rxjs.operators;
+const {Subject, interval, fromEvent, combineLatest} = rxjs;
+const {debounceTime, skip, take, concatWith, mergeWith} = rxjs.operators;
 
 // create ready event from dom and alpline
-const ready = combineLatest([
-  fromEvent(window, 'DOMContentLoaded')
-]).pipe(take(1));
+const ready = combineLatest([fromEvent(window, 'DOMContentLoaded')]).pipe(take(1));
+
+var toolbarOptions = [
+  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+  ['blockquote', 'code-block'],
+
+  [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+  [{ 'direction': 'rtl' }],                         // text direction
+
+  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+  [{ 'font': [] }],
+  [{ 'align': [] }],
+
+  ['clean']                                         // remove formatting button
+];
 
 // Create quill editor
 const quill = new Quill('#editor', {
   theme: 'snow',
   modules: {
-    toolbar: '#toolbar'
-  }
+    toolbar: toolbarOptions,
+  },
 });
+
+let column;
+let id;
+let lastContent;
+let lastSave = Promise.resolve();
+let tableId;
 
 // Subscribe to grist data
 ready.subscribe(() => {
-  grist.ready();
-  grist.onRecords(async function(pages) {
-    // Every time pages change - update pages and folders
-    const pagesStore = Alpine.store('pages');
-    pagesStore.list = pages;
-    const folders = toObjects(await grist.docApi.fetchTable("Folders"));
-    const folderStore = Alpine.store('folders');
-    folderStore.list = folders;
-    if (!folderStore.selected() && folders.length) {
-      folderStore.id = folders[0].id;
+  grist.ready({requiredAccess: 'full', columns: [{name: 'Content', type: 'Text'}]});
+  grist.on('message', data => {
+    if (data.tableId) {
+      tableId = data.tableId;
     }
-    if (folderStore.selected()) {
-      pagesStore.folderSelected(folderStore.selected());
+  });
+  grist.onRecord(function (record, mappings) {
+    if (id !== record.id || mappings?.Content != column) {
+      id = record.id;
+      column = mappings?.Content;
+      const mapped = grist.mapColumnNames(record);
+      if (!mapped) {
+        console.log('Please map columns');
+      } else if (lastContent != mapped.Content) {
+        quill.setContents(mapped.Content ? JSON.parse(mapped.Content) : null);
+        lastContent = mapped.Content;
+      }
     }
   });
 });
 
 // create events emitted from the ui
-const folderClick = new Subject();
-const pageClick = new Subject();
 const textChanged = new Subject();
-const nameChanged = new Subject();
 quill.on('text-change', () => textChanged.next(null));
-// Throttle the save event, to not occur more often than once every second.  
+// Throttle the save event, to not occur more often than once every second.
 const saveEvent = ready
   .pipe(concatWith(textChanged), skip(1)) // emit after ready
-  .pipe(mergeWith(nameChanged)) // listen also to name change
-  .pipe(debounceTime(1000)); // buffer for 1 second
-
-const addPage = new Subject();
-const addFolder = new Subject();
-
-let menu, folders, pages;
-
-// create store
-fromEvent(document, 'alpine:init').subscribe(() => {
-  Alpine.store('menu', {
-    on: true,
-    toggle() {
-      this.on = !this.on;
-    }
-  });
-  folders = Alpine.store('folders', {
-    list: [],
-    id: 0,
-    selected() {
-      return this.id ? this.list.find(f => f.id === this.id) : null;
-    }
-  });
-  Alpine.store('pages', {
-    list: [],
-    active: [],
-    id: 0,
-    current: { Name: '' },
-    folderSelected(folder) {
-      this.active = this.list.filter(p => p.Folder === folder.Name);
-    }
-  });
-  menu = Alpine.store('menu');
-  pages = Alpine.store('pages');
-  folders = Alpine.store('folders');
-})
-
-// Handle ui events
-folderClick.subscribe(id => {
-  folders.id = id;
-  const folder = folders.list.find(f => f.id === id);
-  pages.active = pages.list.filter(p => p.Folder === folder.Name);
-});
-
-pageClick.subscribe(id => {
-  const activePage = pages.active.find(p => id === id);
-  pages.current = activePage;
-  pages.id = id;
-  if (activePage.Text) {
-    quill.setContents(JSON.parse(activePage.Text));
-  } else {
-    quill.setContents(null);
-  }
-})
+  .pipe(debounceTime(1)); // little debounce
 
 saveEvent.subscribe(async () => {
-  if (!pages.id) return;
   const content = quill.getContents();
-  await grist.docApi.applyUserActions([['UpdateRecord', 'Pages', pages.id, {
-    "Text": JSON.stringify(content),
-    "Name": pages.current.Name,
-  }]]);
+  if (column) {
+    lastContent = JSON.stringify(content);
+    try {
+      if (prom) {
+        await prom;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    prom = grist.docApi.applyUserActions([
+      [
+        'UpdateRecord',
+        tableId,
+        id,
+        {
+          [column]: lastContent,
+        },
+      ],
+    ]);
+  }
 });
-
-addFolder.subscribe(async () => {
-  const lastId = folders.list[folders.list.length - 1].id;
-  const name = `Folder${lastId + 1}`;
-  await grist.docApi.applyUserActions([['AddRecord', 'Folders', null, {
-    "Name": name,
-  }]]);
-  const list = toObjects(await grist.docApi.fetchTable("Folders"));
-  folders.list = list;
-});
-
-addPage.subscribe(async () => {
-  const lastId = pages.list.length ? pages.list[pages.list.length - 1].id : '0';
-  const name = `Untitled${lastId + 1}`;
-  await grist.docApi.applyUserActions([['AddRecord', 'Pages', null, {
-    "Name": name,
-    "Folder": folders.id
-  }]]);
-});
-
-function toObjects(data) {
-  const keys = Object.keys(data).filter(k => Array.isArray(data[k]));
-  if (!keys.length) return [];
-  return data[keys[0]].map((v, i) => {
-    const obj = {};
-    keys.forEach(k => obj[k] = data[k][i]);
-    return obj;
-  })
-}
