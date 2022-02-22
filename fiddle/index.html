@@ -12,6 +12,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.nls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.js"></script>
   <script src="api_deps.js"></script>
+  <style>
+    #page_widget {
+      flex: 1; border: 0px; display: none;
+    }
+    #page_widget iframe {
+      height: 100%;
+      width: 100%;
+      border: 0px;
+    }
+  </style>
 </head>
 
 <body style="height: 100%; display: flex; flex-direction: column; margin: 0px; overflow: hidden;">
@@ -30,9 +40,9 @@
   <div id="page_editor" style="display: none; flex-grow:1; box-sizing: border-box; border-top:1px solid #a0a0a0;  border-bottom:1px solid #a0a0a0;">
     <div id="container" style="border-top:0px; height: 100%; box-sizing: border-box;"></div>
   </div>
-  <iframe id="page_widget" style="flex: 1; border: 0px; display: none;">
+  <div id="page_widget">
 
-  </iframe>
+  </div>
   <script src="api.js"></script>
 </body>
 

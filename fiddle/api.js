@@ -88,6 +88,32 @@ const btnTabHtml = document.getElementById('tab_html');
 const btnReset = document.getElementById('btnReset');
 const btnInstall = document.getElementById('btnInstall');
 const bar = document.getElementById('_bar');
+let wFrame = null;
+
+function purge(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+let lastListener;
+function createFrame() {
+  // remove all data from page_widget
+  purge(page_widget);
+  wFrame = document.createElement('iframe');
+  page_widget.appendChild(wFrame);
+  const widgetWindow = wFrame.contentWindow;
+  // Rewire messages between this widget, and the preview
+  if (lastListener) window.removeEventListener('message', lastListener);
+  lastListener = e => {
+    if (e.source === widgetWindow) {
+      window.parent.postMessage(e.data, '*');
+    } else if (e.source === window.parent) {
+      widgetWindow.postMessage(e.data, '*');
+    }
+  }
+  window.addEventListener('message', lastListener);
+}
 
 function init() {
   if (init.invoked) return;
@@ -109,16 +135,6 @@ function init() {
   );
 }
 
-const widgetWindow = page_widget.contentWindow;
-// Rewire messages between this widget, and the preview
-window.addEventListener('message', e => {
-  if (e.source === widgetWindow) {
-    window.parent.postMessage(e.data, '*');
-  } else if (e.source === window.parent) {
-    widgetWindow.postMessage(e.data, '*');
-  }
-});
-
 function changeModel(lang) {
   editor.setModel(lang == 'js' ? jsModel : htmlModel);
   btnTabHtml.style.background = 'white';
@@ -128,10 +144,8 @@ function changeModel(lang) {
 function showPreview(code, html) {
   code = code ?? jsModel.getValue();
   html = html ?? htmlModel.getValue();
-  const content =
-    page_widget.contentWindow ||
-    widgetFrame.contentDocument.document ||
-    widgetFrame.contentDocument;
+  createFrame();
+  const content = wFrame.contentWindow;
   content.document.open();
   content.document.write(html);
   if (code.trim()) {
