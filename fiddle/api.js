@@ -15,6 +15,7 @@ function memory(name) {
 
 const jsValue = memory('js');
 const htmlValue = memory('html');
+const isPreview = memory('preview');
 
 const HTML = `
 <html lang="en">
@@ -111,7 +112,7 @@ function createFrame() {
     } else if (e.source === window.parent) {
       widgetWindow.postMessage(e.data, '*');
     }
-  }
+  };
   window.addEventListener('message', lastListener);
 }
 
@@ -166,11 +167,13 @@ function showPreview(code, html) {
   );
   btnInstall.style.display = 'inline-block';
   btnEditor.style.display = 'inline-block';
+  isPreview(true);
 }
 
 function showEditor() {
   page_widget.style.display = 'none';
   page_editor.style.display = 'block';
+  isPreview(false);
 
   [...document.getElementsByClassName('_tab')].forEach(
     e => (e.style.display = 'inline-block')
@@ -204,6 +207,7 @@ onOptions(options => {
     showPreview(options._js, options._html);
     onOptions(options => {
       if (!options) {
+        isPreview(false);
         window.location.reload();
       }
     });
@@ -211,8 +215,12 @@ onOptions(options => {
     isEditor = true;
     init();
     bar.style.display = 'flex';
-    showEditor();
     buildEditor();
+    if (isPreview()) {
+      showPreview();
+    } else {
+      showEditor();
+    }
   }
 });
 
